@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antar Jemput Varo — Catatan Pembayaran Ojek Pribadi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #fff5f7;
+      color: #4a353d;
+    }
+    .pastel-card {
+      background: #ffffff;
+      border: 1px solid #fecdd3;
+      box-shadow: 0 10px 25px -12px rgba(244, 114, 182, 0.22);
+    }
+    .pastel-soft {
+      background-color: #ffe4e6;
+      border: 1px solid #fecdd3;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-pink-200 selection:text-rose-900">
+  <div id="app" class="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+    <!-- Header Utama -->
+    <header class="pastel-card rounded-3xl p-5 sm:p-6 mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100 text-rose-700 text-xs font-semibold mb-2">
+            <span>Supabase Cloud • Tanpa LocalStorage</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-rose-950">
+            Antar Jemput Varo
+          </h1>
+          <p class="text-sm text-rose-800/75 mt-0.5">
+            Catatan Pembayaran Ojek Pribadi • Hari Efektif Senin–Jumat (Antar-Jemput Rp30k • Satu Arah Rp15k)
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btnOpenConfig"
+            type="button"
+            class="px-3.5 py-2 rounded-2xl bg-pink-100 hover:bg-pink-200 text-rose-900 text-xs sm:text-sm font-semibold transition cursor-pointer"
+          >
+            Atur Supabase
+          </button>
+          <button
+            id="btnLoadCloud"
+            type="button"
+            class="px-3.5 py-2 rounded-2xl bg-white hover:bg-pink-50 text-rose-800 border border-pink-200 text-xs sm:text-sm font-semibold transition cursor-pointer"
+          >
+            Muat Cloud
+          </button>
+          <button
+            id="btnSaveCloud"
+            type="button"
+            class="px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer"
+          >
+            Simpan Cloud
+          </button>
+        </div>
+      </div>
+
+      <!-- Baris Status Cloud & Auto-Sync -->
+      <div class="mt-4 pt-4 border-t border-pink-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline
