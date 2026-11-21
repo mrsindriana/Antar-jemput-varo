@@ -70,4 +70,933 @@
       <!-- Baris Status Cloud & Auto-Sync -->
       <div class="mt-4 pt-4 border-t border-pink-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
         <div class="flex items-center gap-2">
-          <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline
+          <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+          <span id="statusText" class="font-medium text-rose-900/85">
+            Belum terhubung ke Supabase • Klik "Atur Supabase" untuk mulai menyimpan ke cloud
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none text-rose-900/80 font-medium">
+            <input id="autoSyncToggle" type="checkbox" class="rounded accent-pink-500 w-4 h-4 cursor-pointer" />
+            <span>Auto-Sync Cloud</span>
+          </label>
+          <button
+            id="btnCopyShareLink"
+            type="button"
+            class="text-rose-700 hover:text-rose-900 underline font-semibold cursor-pointer"
+          >
+            Salin Link Config
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Kontrol Periode & Status Pembayaran -->
+    <section class="pastel-card rounded-3xl p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div>
+          <label for="monthSelect" class="block text-xs font-bold uppercase tracking-wider text-rose-800/80 mb-1.5">
+            Bulan
+          </label>
+          <select
+            id="monthSelect"
+            class="w-full rounded-2xl border border-pink-200 bg-pink-50/50 px-3.5 py-2.5 text-sm font-semibold text-rose-950 focus:outline-none focus:ring-2 focus:ring-pink-300"
+          ></select>
+        </div>
+
+        <div>
+          <label for="yearSelect" class="block text-xs font-bold uppercase tracking-wider text-rose-800/80 mb-1.5">
+            Tahun
+          </label>
+          <select
+            id="yearSelect"
+            class="w-full rounded-2xl border border-pink-200 bg-pink-50/50 px-3.5 py-2.5 text-sm font-semibold text-rose-950 focus:outline-none focus:ring-2 focus:ring-pink-300"
+          ></select>
+        </div>
+
+        <div>
+          <span class="block text-xs font-bold uppercase tracking-wider text-rose-800/80 mb-1.5">
+            Status Pembayaran Bulan Ini
+          </span>
+          <button
+            id="btnTogglePayment"
+            type="button"
+            class="w-full py-2.5 px-4 rounded-2xl text-sm font-bold border transition cursor-pointer"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Ringkasan Angka -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+        <div class="pastel-soft rounded-2xl p-3.5">
+          <div class="text-[11px] font-semibold text-rose-800/80">Hari Diceklis</div>
+          <div id="statCheckedDays" class="text-xl font-extrabold text-rose-950 mt-0.5">0 hari</div>
+        </div>
+        <div class="pastel-soft rounded-2xl p-3.5">
+          <div class="text-[11px] font-semibold text-rose-800/80">Antar-Jemput (30k)</div>
+          <div id="statFullCount" class="text-xl font-extrabold text-rose-950 mt-0.5">0x</div>
+        </div>
+        <div class="pastel-soft rounded-2xl p-3.5">
+          <div class="text-[11px] font-semibold text-rose-800/80">Satu Arah (15k)</div>
+          <div id="statHalfCount" class="text-xl font-extrabold text-rose-950 mt-0.5">0x</div>
+        </div>
+        <div class="rounded-2xl p-3.5 bg-gradient-to-br from-pink-400 to-rose-400 text-white">
+          <div class="text-[11px] font-semibold text-pink-50">Total Pembayaran</div>
+          <div id="statTotalAmount" class="text-xl font-extrabold mt-0.5">Rp0</div>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi Cepat -->
+      <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-pink-100">
+        <button
+          id="btnCheckAllFull"
+          type="button"
+          class="px-3.5 py-2 rounded-2xl bg-pink-100 hover:bg-pink-200 text-rose-900 text-xs font-bold transition cursor-pointer"
+        >
+          Ceklis Semua Hari Efektif: Antar-Jemput (30k)
+        </button>
+        <button
+          id="btnClearMonth"
+          type="button"
+          class="px-3.5 py-2 rounded-2xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer"
+        >
+          Kosongkan Ceklis Bulan Ini
+        </button>
+        <button
+          id="btnToggleHolidayPanel"
+          type="button"
+          class="px-3.5 py-2 rounded-2xl bg-white hover:bg-pink-50 text-rose-800 border border-pink-200 text-xs font-semibold transition cursor-pointer ml-auto"
+        >
+          Atur Libur Kustom
+        </button>
+      </div>
+
+      <!-- Panel Libur Kustom -->
+      <div id="holidayPanel" class="hidden mt-4 p-4 rounded-2xl bg-pink-50/80 border border-pink-200">
+        <div class="text-xs font-bold text-rose-900 mb-2">
+          Tambah Tanggal Libur Kustom (misal: libur sekolah, cuti bersama, atau tidak masuk)
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input
+            id="customHolidayDate"
+            type="date"
+            class="rounded-xl border border-pink-200 bg-white px-3 py-2 text-xs font-semibold text-rose-950"
+          />
+          <input
+            id="customHolidayLabel"
+            type="text"
+            placeholder="Keterangan (opsional, misal: Libur Sekolah)"
+            class="flex-1 rounded-xl border border-pink-200 bg-white px-3 py-2 text-xs text-rose-950"
+          />
+          <button
+            id="btnAddHoliday"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer"
+          >
+            Simpan Libur
+          </button>
+        </div>
+        <div id="customHolidayList" class="flex flex-wrap gap-2 mt-3"></div>
+      </div>
+    </section>
+
+    <!-- Daftar Hari Efektif Senin-Jumat -->
+    <section class="pastel-card rounded-3xl p-5 mb-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <h2 id="monthHeading" class="text-lg font-extrabold text-rose-950"></h2>
+          <p class="text-xs text-rose-800/70">
+            Sabtu–Minggu otomatis dikecualikan. Klik opsi di tiap tanggal untuk mencatat pembayaran harian.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
+          <span class="px-2.5 py-1 rounded-full bg-pink-100 text-rose-800">Full 30k</span>
+          <span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">Antar 15k</span>
+          <span class="px-2.5 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800">Jemput 15k</span>
+          <span class="px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">Libur</span>
+        </div>
+      </div>
+
+      <div id="daysContainer" class="space-y-2.5"></div>
+    </section>
+
+    <!-- Rekapan Hanya Tanggal yang Diceklis -->
+    <section class="pastel-card rounded-3xl p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+        <div>
+          <h2 class="text-lg font-extrabold text-rose-950">Rekapan Tanggal yang Diceklis</h2>
+          <p class="text-xs text-rose-800/70">
+            Hanya menampilkan tanggal yang benar-benar Anda ceklis pada bulan terpilih.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            id="btnCopySummary"
+            type="button"
+            class="px-3.5 py-2 rounded-2xl bg-pink-100 hover:bg-pink-200 text-rose-900 text-xs font-bold transition cursor-pointer"
+          >
+            Salin Teks Rekapan
+          </button>
+          <a
+            id="btnWaShare"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-3.5 py-2 rounded-2xl bg-rose-400 hover:bg-rose-500 text-white text-xs font-bold transition"
+          >
+            Kirim ke WA
+          </a>
+        </div>
+      </div>
+
+      <pre
+        id="summaryBox"
+        class="whitespace-pre-wrap rounded-2xl bg-pink-50/75 border border-pink-200 p-4 text-xs sm:text-sm text-rose-950 leading-relaxed font-sans"
+      ></pre>
+    </section>
+  </div>
+
+  <!-- Modal Pengaturan Supabase -->
+  <div id="configModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-rose-950/35 p-4">
+    <div class="pastel-card rounded-3xl max-w-lg w-full p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-extrabold text-rose-950">Pengaturan Supabase Cloud</h3>
+        <button id="btnCloseConfig" type="button" class="text-rose-700 hover:text-rose-950 font-bold text-sm cursor-pointer">
+          Tutup
+        </button>
+      </div>
+      <p class="text-xs text-rose-800/80 mb-4 leading-relaxed">
+        Data disimpan langsung ke tabel Supabase tanpa memakai <code class="font-bold">localStorage</code>.
+        Untuk membuka ulang dengan cepat tanpa mengetik ulang, gunakan <strong>Salin Link Config</strong> setelah menyimpan.
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-rose-900 mb-1">Supabase Project URL</label>
+          <input
+            id="cfgUrl"
+            type="url"
+            placeholder="https://xxxx.supabase.co"
+            class="w-full rounded-xl border border-pink-200 bg-pink-50/40 px-3 py-2 text-rose-950"
+          />
+        </div>
+        <div>
+          <label class="block font-bold text-rose-900 mb-1">Supabase Anon / Publishable Key</label>
+          <input
+            id="cfgKey"
+            type="password"
+            placeholder="eyJhbGciOiJIUzI1NiIs..."
+            class="w-full rounded-xl border border-pink-200 bg-pink-50/40 px-3 py-2 text-rose-950"
+          />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-rose-900 mb-1">Nama Tabel</label>
+            <input
+              id="cfgTable"
+              type="text"
+              value="antar_jemput_varo_data"
+              class="w-full rounded-xl border border-pink-200 bg-pink-50/40 px-3 py-2 text-rose-950"
+            />
+          </div>
+          <div>
+            <label class="block font-bold text-rose-900 mb-1">ID Catatan (Record Key)</label>
+            <input
+              id="cfgRecordKey"
+              type="text"
+              value="varo_main"
+              class="w-full rounded-xl border border-pink-200 bg-pink-50/40 px-3 py-2 text-rose-950"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 mt-5">
+        <button
+          id="btnSaveConfigAndLoad"
+          type="button"
+          class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white text-xs font-bold cursor-pointer"
+        >
+          Terapkan & Muat Data Cloud
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifikasi -->
+  <div
+    id="toast"
+    class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-2xl bg-rose-900 text-white text-xs font-semibold shadow-lg"
+  ></div>
+
+  <script>
+    (function () {
+      const MONTH_NAMES = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      const DAY_NAMES_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+      const NATIONAL_HOLIDAYS = {
+        '2026-01-01': 'Tahun Baru 2026 Masehi',
+        '2026-01-16': 'Isra Mikraj Nabi Muhammad SAW',
+        '2026-02-17': 'Tahun Baru Imlek 2577 Kongzili',
+        '2026-03-19': 'Hari Suci Nyepi Tahun Baru Saka 1948',
+        '2026-03-20': 'Idulfitri 1447 Hijriah',
+        '2026-03-21': 'Idulfitri 1447 Hijriah',
+        '2026-04-03': 'Wafat Yesus Kristus',
+        '2026-05-01': 'Hari Buruh Internasional',
+        '2026-05-14': 'Kenaikan Yesus Kristus',
+        '2026-05-27': 'Iduladha 1447 Hijriah',
+        '2026-05-31': 'Hari Raya Waisak 2570 BE',
+        '2026-06-01': 'Hari Lahir Pancasila',
+        '2026-06-16': 'Tahun Baru Islam 1448 Hijriah',
+        '2026-08-17': 'Proklamasi Kemerdekaan RI',
+        '2026-08-25': 'Maulid Nabi Muhammad SAW',
+        '2026-12-25': 'Hari Raya Natal',
+        '2027-01-01': 'Tahun Baru 2027 Masehi',
+        '2027-02-06': 'Tahun Baru Imlek 2578 Kongzili',
+        '2027-02-07': 'Isra Mikraj Nabi Muhammad SAW',
+        '2027-03-08': 'Hari Suci Nyepi Tahun Baru Saka 1949',
+        '2027-03-09': 'Idulfitri 1448 Hijriah',
+        '2027-03-10': 'Idulfitri 1448 Hijriah',
+        '2027-03-26': 'Wafat Yesus Kristus',
+        '2027-05-01': 'Hari Buruh Internasional',
+        '2027-05-06': 'Kenaikan Yesus Kristus',
+        '2027-05-16': 'Iduladha 1448 Hijriah',
+        '2027-05-20': 'Hari Raya Waisak 2571 BE',
+        '2027-06-01': 'Hari Lahir Pancasila',
+        '2027-06-06': 'Tahun Baru Islam 1449 Hijriah',
+        '2027-08-14': 'Maulid Nabi Muhammad SAW',
+        '2027-08-17': 'Proklamasi Kemerdekaan RI',
+        '2027-12-25': 'Hari Raya Natal'
+      };
+
+      const now = new Date();
+      const state = {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        entries: {},
+        paidMonths: {},
+        customHolidays: {},
+        autoSync: false,
+        supabase: {
+          url: '',
+          key: '',
+          table: 'antar_jemput_varo_data',
+          recordKey: 'varo_main'
+        }
+      };
+
+      let autoSyncTimer = null;
+      let toastTimer = null;
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function toDateKey(year, monthIndex, day) {
+        return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
+      }
+
+      function toMonthKey(year, monthIndex) {
+        return `${year}-${pad2(monthIndex + 1)}`;
+      }
+
+      function formatRupiah(amount) {
+        return 'Rp' + Number(amount || 0).toLocaleString('id-ID');
+      }
+
+      function getTripCost(type) {
+        if (type === 'full') return 30000;
+        if (type === 'antar' || type === 'jemput') return 15000;
+        return 0;
+      }
+
+      function getTripLabel(type) {
+        if (type === 'full') return 'Antar & Jemput (Rp30.000)';
+        if (type === 'antar') return 'Antar Saja (Rp15.000)';
+        if (type === 'jemput') return 'Jemput Saja (Rp15.000)';
+        return '';
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.add('hidden');
+        }, 2800);
+      }
+
+      function setCloudStatus(mode, text) {
+        const dot = document.getElementById('statusDot');
+        const label = document.getElementById('statusText');
+        if (dot) {
+          dot.className = 'w-2.5 h-2.5 rounded-full inline-block';
+          if (mode === 'ok') dot.classList.add('bg-emerald-500');
+          else if (mode === 'sync') dot.classList.add('bg-pink-500', 'animate-pulse');
+          else if (mode === 'err') dot.classList.add('bg-rose-600');
+          else dot.classList.add('bg-amber-400');
+        }
+        if (label) label.textContent = text;
+      }
+
+      function encodeUtf8ToBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) {
+          bin += String.fromCharCode(bytes[i]);
+        }
+        return btoa(bin);
+      }
+
+      function decodeBase64ToUtf8(b64) {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) {
+          bytes[i] = bin.charCodeAt(i);
+        }
+        return new TextDecoder().decode(bytes);
+      }
+
+      function loadConfigFromHash() {
+        try {
+          const hash = window.location.hash || '';
+          const match = hash.match(/cfg=([^&]+)/);
+          if (!match) return;
+          const parsed = JSON.parse(decodeBase64ToUtf8(match[1]));
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.url) state.supabase.url = String(parsed.url).trim().replace(/\/+$/, '');
+            if (parsed.key) state.supabase.key = String(parsed.key).trim();
+            if (parsed.table) state.supabase.table = String(parsed.table).trim();
+            if (parsed.recordKey) state.supabase.recordKey = String(parsed.recordKey).trim();
+          }
+        } catch (e) {
+          console.warn('Hash config diabaikan:', e);
+        }
+      }
+
+      function buildConfigShareUrl() {
+        const payload = encodeUtf8ToBase64(JSON.stringify(state.supabase));
+        const base = window.location.href.split('#')[0];
+        return `${base}#cfg=${payload}`;
+      }
+
+      function isSupabaseReady() {
+        return Boolean(state.supabase.url && state.supabase.key && state.supabase.table && state.supabase.recordKey);
+      }
+
+      async function loadFromSupabase(silent = false) {
+        if (!isSupabaseReady()) {
+          if (!silent) showToast('Isi URL & Key Supabase terlebih dahulu.');
+          setCloudStatus('warn', 'Konfigurasi Supabase belum lengkap');
+          return;
+        }
+
+        setCloudStatus('sync', 'Memuat data dari Supabase...');
+        const endpoint = `${state.supabase.url}/rest/v1/${encodeURIComponent(state.supabase.table)}?record_key=eq.${encodeURIComponent(state.supabase.recordKey)}&select=payload,updated_at`;
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              apikey: state.supabase.key,
+              Authorization: `Bearer ${state.supabase.key}`,
+              Accept: 'application/json'
+            }
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`HTTP ${res.status}: ${errText}`);
+          }
+
+          const rows = await res.json();
+          if (Array.isArray(rows) && rows.length > 0 && rows[0].payload) {
+            const p = rows[0].payload;
+            state.entries = typeof p.entries === 'object' && p.entries !== null ? p.entries : {};
+            state.paidMonths = typeof p.paidMonths === 'object' && p.paidMonths !== null ? p.paidMonths : {};
+            state.customHolidays = typeof p.customHolidays === 'object' && p.customHolidays !== null ? p.customHolidays : {};
+            if (typeof p.year === 'number') state.year = p.year;
+            if (typeof p.month === 'number') state.month = p.month;
+            syncSelectors();
+            renderAll();
+            setCloudStatus('ok', `Terhubung ke Supabase (${state.supabase.recordKey}) • Data dimuat`);
+            if (!silent) showToast('Data berhasil dimuat dari Supabase.');
+          } else {
+            setCloudStatus('ok', `Terhubung ke Supabase (${state.supabase.recordKey}) • Belum ada data tersimpan`);
+            if (!silent) showToast('Tabel terhubung, belum ada catatan tersimpan.');
+          }
+        } catch (err) {
+          console.error(err);
+          setCloudStatus('err', `Gagal memuat Supabase: ${err.message}`);
+          if (!silent) showToast('Gagal memuat data dari Supabase.');
+        }
+      }
+
+      async function saveToSupabase(silent = false) {
+        if (!isSupabaseReady()) {
+          if (!silent) showToast('Atur Supabase terlebih dahulu sebelum menyimpan.');
+          setCloudStatus('warn', 'Konfigurasi Supabase belum lengkap');
+          return;
+        }
+
+        setCloudStatus('sync', 'Menyimpan ke Supabase...');
+        const endpoint = `${state.supabase.url}/rest/v1/${encodeURIComponent(state.supabase.table)}?on_conflict=record_key`;
+        const body = [{
+          record_key: state.supabase.recordKey,
+          payload: {
+            year: state.year,
+            month: state.month,
+            entries: state.entries,
+            paidMonths: state.paidMonths,
+            customHolidays: state.customHolidays
+          },
+          updated_at: new Date().toISOString()
+        }];
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              apikey: state.supabase.key,
+              Authorization: `Bearer ${state.supabase.key}`,
+              'Content-Type': 'application/json',
+              Prefer: 'resolution=merge-duplicates,return=minimal'
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`HTTP ${res.status}: ${errText}`);
+          }
+
+          const jam = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          setCloudStatus('ok', `Tersimpan di Supabase pukul ${jam}`);
+          if (!silent) showToast('Ceklis tersimpan ke Supabase.');
+        } catch (err) {
+          console.error(err);
+          setCloudStatus('err', `Gagal simpan Supabase: ${err.message}`);
+          if (!silent) showToast('Gagal menyimpan ke Supabase.');
+        }
+      }
+
+      function scheduleAutoSync() {
+        if (!state.autoSync) return;
+        clearTimeout(autoSyncTimer);
+        autoSyncTimer = setTimeout(() => {
+          saveToSupabase(true);
+        }, 900);
+      }
+
+      function onDataChanged() {
+        renderAll();
+        scheduleAutoSync();
+      }
+
+      function getEffectiveWeekdays(year, monthIndex) {
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+        const list = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dt = new Date(year, monthIndex, d);
+          const dow = dt.getDay();
+          if (dow === 0 || dow === 6) continue;
+          const dateKey = toDateKey(year, monthIndex, d);
+          const nationalHoliday = NATIONAL_HOLIDAYS[dateKey] || null;
+          const customHoliday = state.customHolidays[dateKey] || null;
+          list.push({
+            day: d,
+            dateKey,
+            dayName: DAY_NAMES_ID[dow],
+            holidayReason: nationalHoliday || customHoliday || null,
+            isHoliday: Boolean(nationalHoliday || customHoliday)
+          });
+        }
+        return list;
+      }
+
+      function renderPaymentButton() {
+        const monthKey = toMonthKey(state.year, state.month);
+        const isPaid = Boolean(state.paidMonths[monthKey]);
+        const btn = document.getElementById('btnTogglePayment');
+        if (!btn) return;
+        if (isPaid) {
+          btn.textContent = 'Sudah Lunas (Klik untuk Ubah)';
+          btn.className = 'w-full py-2.5 px-4 rounded-2xl text-sm font-bold border bg-emerald-100 border-emerald-300 text-emerald-900 transition cursor-pointer';
+        } else {
+          btn.textContent = 'Belum Dibayar (Klik Tandai Lunas)';
+          btn.className = 'w-full py-2.5 px-4 rounded-2xl text-sm font-bold border bg-rose-100 border-rose-300 text-rose-900 transition cursor-pointer';
+        }
+      }
+
+      function renderCustomHolidays() {
+        const container = document.getElementById('customHolidayList');
+        if (!container) return;
+        const monthPrefix = `${state.year}-${pad2(state.month + 1)}-`;
+        const keys = Object.keys(state.customHolidays).filter((k) => k.startsWith(monthPrefix)).sort();
+
+        if (keys.length === 0) {
+          container.innerHTML = '<span class="text-[11px] text-rose-700/70">Belum ada libur kustom pada bulan ini.</span>';
+          return;
+        }
+
+        container.innerHTML = keys.map((k) => {
+          const desc = state.customHolidays[k] || 'Libur Kustom';
+          return `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-pink-200 text-[11px] font-semibold text-rose-900">
+              <span>${k} — ${desc}</span>
+              <button type="button" data-del-holiday="${k}" class="text-rose-500 hover:text-rose-800 font-bold cursor-pointer">×</button>
+            </span>
+          `;
+        }).join('');
+
+        container.querySelectorAll('[data-del-holiday]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-del-holiday');
+            delete state.customHolidays[key];
+            onDataChanged();
+          });
+        });
+      }
+
+      function renderDaysAndSummary() {
+        const heading = document.getElementById('monthHeading');
+        if (heading) {
+          heading.textContent = `Hari Efektif ${MONTH_NAMES[state.month]} ${state.year}`;
+        }
+
+        const weekdays = getEffectiveWeekdays(state.year, state.month);
+        const container = document.getElementById('daysContainer');
+
+        let checkedCount = 0;
+        let fullCount = 0;
+        let halfCount = 0;
+        let totalAmount = 0;
+        const checkedItems = [];
+
+        const htmlRows = weekdays.map((item) => {
+          if (item.isHoliday && state.entries[item.dateKey]) {
+            delete state.entries[item.dateKey];
+          }
+          const activeVal = item.isHoliday ? '' : (state.entries[item.dateKey] || '');
+          const cost = getTripCost(activeVal);
+
+          if (activeVal) {
+            checkedCount += 1;
+            totalAmount += cost;
+            if (activeVal === 'full') fullCount += 1;
+            if (activeVal === 'antar' || activeVal === 'jemput') halfCount += 1;
+            checkedItems.push({
+              ...item,
+              type: activeVal,
+              cost,
+              label: getTripLabel(activeVal)
+            });
+          }
+
+          if (item.isHoliday) {
+            return `
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-2xl bg-stone-50/90 border border-stone-200/80 text-stone-500">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-stone-200/70 text-stone-700">${item.dayName}, ${item.day} ${MONTH_NAMES[state.month]}</span>
+                  <span class="text-xs font-medium">${item.holidayReason}</span>
+                </div>
+                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-stone-200/60 text-stone-600 self-start sm:self-auto">
+                  Libur (Rp0)
+                </span>
+              </div>
+            `;
+          }
+
+          const pillClass = (mode, activeClasses) => {
+            const isSelected = activeVal === mode;
+            return isSelected
+              ? `${activeClasses} font-bold shadow-xs`
+              : 'bg-pink-50/60 hover:bg-pink-100/80 text-rose-900/75 border-pink-200/80 font-medium';
+          };
+
+          return `
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 p-3 rounded-2xl ${activeVal ? 'bg-pink-50/65 border border-pink-200' : 'bg-white border border-pink-100'} transition">
+              <div class="flex items-center justify-between md:justify-start gap-3">
+                <div>
+                  <span class="text-sm font-bold text-rose-950">${item.dayName}, ${item.day} ${MONTH_NAMES[state.month]}</span>
+                  <span class="text-xs text-rose-700/65 ml-1.5">${item.dateKey}</span>
+                </div>
+                ${activeVal ? `<span class="text-xs font-extrabold text-rose-700 md:hidden">${formatRupiah(cost)}</span>` : ''}
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  data-date="${item.dateKey}"
+                  data-mode="full"
+                  class="px-2.5 py-1.5 rounded-xl border text-xs transition cursor-pointer ${pillClass('full', 'bg-pink-400 text-white border-pink-400')}"
+                >
+                  Full 30k
+                </button>
+                <button
+                  type="button"
+                  data-date="${item.dateKey}"
+                  data-mode="antar"
+                  class="px-2.5 py-1.5 rounded-xl border text-xs transition cursor-pointer ${pillClass('antar', 'bg-rose-400 text-white border-rose-400')}"
+                >
+                  Antar 15k
+                </button>
+                <button
+                  type="button"
+                  data-date="${item.dateKey}"
+                  data-mode="jemput"
+                  class="px-2.5 py-1.5 rounded-xl border text-xs transition cursor-pointer ${pillClass('jemput', 'bg-fuchsia-400 text-white border-fuchsia-400')}"
+                >
+                  Jemput 15k
+                </button>
+                ${activeVal ? `
+                  <button
+                    type="button"
+                    data-date="${item.dateKey}"
+                    data-mode=""
+                    class="px-2 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 text-[11px] font-semibold text-rose-700 transition cursor-pointer"
+                    title="Batalkan ceklis tanggal ini"
+                  >
+                    Batal
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (container) {
+          container.innerHTML = htmlRows;
+          container.querySelectorAll('button[data-date]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const dKey = btn.getAttribute('data-date');
+              const mode = btn.getAttribute('data-mode');
+              if (!mode || state.entries[dKey] === mode) {
+                delete state.entries[dKey];
+              } else {
+                state.entries[dKey] = mode;
+              }
+              onDataChanged();
+            });
+          });
+        }
+
+        const elChecked = document.getElementById('statCheckedDays');
+        const elFull = document.getElementById('statFullCount');
+        const elHalf = document.getElementById('statHalfCount');
+        const elTotal = document.getElementById('statTotalAmount');
+
+        if (elChecked) elChecked.textContent = `${checkedCount} hari`;
+        if (elFull) elFull.textContent = `${fullCount}x`;
+        if (elHalf) elHalf.textContent = `${halfCount}x`;
+        if (elTotal) elTotal.textContent = formatRupiah(totalAmount);
+
+        const monthKey = toMonthKey(state.year, state.month);
+        const statusBayarLabel = state.paidMonths[monthKey] ? 'Sudah Lunas' : 'Belum Dibayar';
+        const lines = [
+          `Rekapan Antar Jemput Varo — ${MONTH_NAMES[state.month]} ${state.year}`,
+          `Status Pembayaran: ${statusBayarLabel}`,
+          `----------------------------------------`
+        ];
+
+        if (checkedItems.length === 0) {
+          lines.push('Belum ada tanggal yang diceklis pada bulan ini.');
+        } else {
+          checkedItems.forEach((c, idx) => {
+            lines.push(`${idx + 1}. ${c.dayName}, ${c.day} ${MONTH_NAMES[state.month]} (${c.dateKey}) — ${c.label}`);
+          });
+        }
+
+        lines.push(`----------------------------------------`);
+        lines.push(`Total Hari Diceklis: ${checkedCount} hari`);
+        lines.push(`Total Pembayaran: ${formatRupiah(totalAmount)}`);
+
+        const summaryText = lines.join('\n');
+        const summaryBox = document.getElementById('summaryBox');
+        const waLink = document.getElementById('btnWaShare');
+        if (summaryBox) summaryBox.textContent = summaryText;
+        if (waLink) waLink.href = `https://wa.me/?text=${encodeURIComponent(summaryText)}`;
+      }
+
+      function renderAll() {
+        renderPaymentButton();
+        renderCustomHolidays();
+        renderDaysAndSummary();
+      }
+
+      function syncSelectors() {
+        const mSel = document.getElementById('monthSelect');
+        const ySel = document.getElementById('yearSelect');
+        if (mSel) mSel.value = String(state.month);
+        if (ySel) ySel.value = String(state.year);
+
+        const cfgUrl = document.getElementById('cfgUrl');
+        const cfgKey = document.getElementById('cfgKey');
+        const cfgTable = document.getElementById('cfgTable');
+        const cfgRecordKey = document.getElementById('cfgRecordKey');
+
+        if (cfgUrl) cfgUrl.value = state.supabase.url;
+        if (cfgKey) cfgKey.value = state.supabase.key;
+        if (cfgTable) cfgTable.value = state.supabase.table;
+        if (cfgRecordKey) cfgRecordKey.value = state.supabase.recordKey;
+      }
+
+      function initSelectors() {
+        const monthSel = document.getElementById('monthSelect');
+        const yearSel = document.getElementById('yearSelect');
+
+        if (monthSel) {
+          monthSel.innerHTML = MONTH_NAMES.map((m, idx) => `<option value="${idx}">${m}</option>`).join('');
+          monthSel.addEventListener('change', () => {
+            state.month = Number(monthSel.value);
+            onDataChanged();
+          });
+        }
+
+        if (yearSel) {
+          const years = [2025, 2026, 2027, 2028];
+          if (!years.includes(state.year)) years.push(state.year);
+          years.sort();
+          yearSel.innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join('');
+          yearSel.addEventListener('change', () => {
+            state.year = Number(yearSel.value);
+            onDataChanged();
+          });
+        }
+      }
+
+      function bindEvents() {
+        document.getElementById('btnTogglePayment')?.addEventListener('click', () => {
+          const mKey = toMonthKey(state.year, state.month);
+          state.paidMonths[mKey] = !state.paidMonths[mKey];
+          onDataChanged();
+        });
+
+        document.getElementById('btnCheckAllFull')?.addEventListener('click', () => {
+          const weekdays = getEffectiveWeekdays(state.year, state.month);
+          weekdays.forEach((w) => {
+            if (!w.isHoliday) {
+              state.entries[w.dateKey] = 'full';
+            }
+          });
+          showToast('Semua hari efektif ditandai Full 30k.');
+          onDataChanged();
+        });
+
+        document.getElementById('btnClearMonth')?.addEventListener('click', () => {
+          const prefix = `${state.year}-${pad2(state.month + 1)}-`;
+          Object.keys(state.entries).forEach((k) => {
+            if (k.startsWith(prefix)) delete state.entries[k];
+          });
+          showToast('Ceklis bulan ini dikosongkan.');
+          onDataChanged();
+        });
+
+        document.getElementById('btnToggleHolidayPanel')?.addEventListener('click', () => {
+          document.getElementById('holidayPanel')?.classList.toggle('hidden');
+        });
+
+        document.getElementById('btnAddHoliday')?.addEventListener('click', () => {
+          const dateVal = document.getElementById('customHolidayDate')?.value;
+          const labelVal = (document.getElementById('customHolidayLabel')?.value || '').trim();
+          if (!dateVal) {
+            showToast('Pilih tanggal libur terlebih dahulu.');
+            return;
+          }
+          state.customHolidays[dateVal] = labelVal || 'Libur Kustom';
+          delete state.entries[dateVal];
+          const labelInput = document.getElementById('customHolidayLabel');
+          if (labelInput) labelInput.value = '';
+          showToast(`Tanggal ${dateVal} ditandai libur.`);
+          onDataChanged();
+        });
+
+        document.getElementById('btnCopySummary')?.addEventListener('click', async () => {
+          const txt = document.getElementById('summaryBox')?.textContent || '';
+          try {
+            await navigator.clipboard.writeText(txt);
+            showToast('Rekapan disalin ke clipboard.');
+          } catch {
+            showToast('Gagal menyalin otomatis, silakan blok teks rekapan.');
+          }
+        });
+
+        document.getElementById('btnOpenConfig')?.addEventListener('click', () => {
+          syncSelectors();
+          const modal = document.getElementById('configModal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          }
+        });
+
+        document.getElementById('btnCloseConfig')?.addEventListener('click', () => {
+          const modal = document.getElementById('configModal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+        });
+
+        document.getElementById('btnSaveConfigAndLoad')?.addEventListener('click', async () => {
+          state.supabase.url = (document.getElementById('cfgUrl')?.value || '').trim().replace(/\/+$/, '');
+          state.supabase.key = (document.getElementById('cfgKey')?.value || '').trim();
+          state.supabase.table = (document.getElementById('cfgTable')?.value || '').trim() || 'antar_jemput_varo_data';
+          state.supabase.recordKey = (document.getElementById('cfgRecordKey')?.value || '').trim() || 'varo_main';
+
+          const modal = document.getElementById('configModal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+
+          await loadFromSupabase(false);
+        });
+
+        document.getElementById('btnLoadCloud')?.addEventListener('click', () => loadFromSupabase(false));
+        document.getElementById('btnSaveCloud')?.addEventListener('click', () => saveToSupabase(false));
+
+        document.getElementById('autoSyncToggle')?.addEventListener('change', (e) => {
+          state.autoSync = Boolean(e.target.checked);
+          if (state.autoSync) {
+            showToast('Auto-Sync Cloud aktif.');
+            scheduleAutoSync();
+          } else {
+            showToast('Auto-Sync Cloud dimatikan.');
+          }
+        });
+
+        document.getElementById('btnCopyShareLink')?.addEventListener('click', async () => {
+          if (!isSupabaseReady()) {
+            showToast('Isi konfigurasi Supabase dulu sebelum menyalin link.');
+            return;
+          }
+          const link = buildConfigShareUrl();
+          try {
+            await navigator.clipboard.writeText(link);
+            showToast('Link konfigurasi disalin. Simpan link ini untuk membuka cepat.');
+          } catch {
+            prompt('Salin tautan konfigurasi ini:', link);
+          }
+        });
+      }
+
+      initSelectors();
+      bindEvents();
+      loadConfigFromHash();
+      syncSelectors();
+      renderAll();
+
+      if (isSupabaseReady()) {
+        loadFromSupabase(true);
+      }
+    })();
+  </script>
+</body>
+</html>
